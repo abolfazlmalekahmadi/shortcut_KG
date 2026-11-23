@@ -51,10 +51,12 @@ python scripts/compute_anatomical_measures.py --dataset vindr \
 # every row of a dataset (omit --n, or pass --n 0)
 python scripts/compute_anatomical_measures.py --dataset mimic --variant preprocessed
 
-# both variants, every dataset, then the two reports
+# both variants, every dataset, then the reports
 python scripts/run_full.py
 python scripts/summarise_runs.py --glob 'output/full/*.json' --out output/FULL_DATASET.md
 python scripts/variant_agreement.py --output-dir output/full --out output/FULL_VARIANT_AGREEMENT.md
+python scripts/describe_runs.py --out output/FULL_DIAGNOSTICS.md
+python scripts/dataset_leakage.py --out output/DATASET_LEAKAGE.md
 
 # 1000 random CheXpert images
 python scripts/compute_anatomical_measures.py --dataset chexpert \
@@ -95,6 +97,7 @@ scripts/compare_variants.py              two runs, side by side, per measure
 scripts/variant_agreement.py             the same check for every dataset, -> one report
 scripts/summarise_runs.py                every run in output/ -> one table
 scripts/describe_runs.py                 distributions, data quality, effect sizes, confounders
+scripts/dataset_leakage.py               can the anatomy alone name the dataset?
 scripts/verify_run.py                    re-derive rows of a finished run with the raster engine
 src/chexmask_anatomy/rle.py              RLE codec (row-major, 1-based, as the authors publish it)
 src/chexmask_anatomy/measures.py         the raster engine / the definitions
@@ -186,6 +189,13 @@ What the numbers say so far:
   size — a poorly inspired or differently positioned film raises it — while
   `r(CTR, image size)` is only +0.06…+0.15, so detector size is not what drives it. This is
   the first mechanism the knowledge graph should be able to name.
+
+- **Anatomy alone names the dataset, but mostly through the frame.** A logistic
+  regression on the measures separates the four large datasets with AUC 0.77–0.96 — and
+  once the frame-relative features are removed that falls to 0.57–0.72, with CTR alone
+  accounting for essentially all of it (0.52–0.71). So the strong separability is the file
+  format talking (ChestX-Ray8 is always 1024×1024), and what is genuinely anatomical is the
+  moderate CTR difference. `output/DATASET_LEAKAGE.md`.
 
 `output/FULL_DIAGNOSTICS.md` has the distributions, effect sizes and correlations behind
 these statements; 49 MIMIC rows ship an empty organ and drop out of the ratios.
