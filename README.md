@@ -81,7 +81,7 @@ No `opencv` needed.
 | speed | ~3 rows/s at native resolution | ~1,500 rows/s |
 | role | the readable reference for every definition | what the full-dataset runs use |
 
-They are interchangeable: `--engine fast|raster` selects one, the CLI writes the same 44
+They are interchangeable: `--engine fast|raster` selects one, the CLI writes the same 45
 columns either way, and `tests/test_fast_engine.py` compares every measure on 365 real
 images from all five datasets, on 44 images whose masks are not contiguous, and on
 synthetic rows with an empty organ.
@@ -94,6 +94,7 @@ scripts/run_full.py                      the nine full passes, several at a time
 scripts/compare_variants.py              two runs, side by side, per measure
 scripts/variant_agreement.py             the same check for every dataset, -> one report
 scripts/summarise_runs.py                every run in output/ -> one table
+scripts/describe_runs.py                 distributions, data quality, effect sizes, confounders
 scripts/verify_run.py                    re-derive rows of a finished run with the raster engine
 src/chexmask_anatomy/rle.py              RLE codec (row-major, 1-based, as the authors publish it)
 src/chexmask_anatomy/measures.py         the raster engine / the definitions
@@ -106,7 +107,7 @@ output/                                  the 200-row sample runs (CSV + JSON + f
 output/full/                             the full runs (JSON committed, CSV not)
 ```
 
-## Three caveats that cost time to discover
+## Four caveats that cost time to discover
 
 1. **`OriginalResolution` vs `Preprocessed`.** The release ships the same annotations
    twice: at native resolution, and padded-to-square then resized to 1024×1024. Anything
@@ -122,8 +123,14 @@ output/full/                             the full runs (JSON committed, CSV not)
    statistics are computed on the passing rows only.
 
 3. **A row of a mask is not always one contiguous stretch of pixels**, and some rows ship
-   an empty organ (at least one PadChest row does). Neither assumption is safe; the fast
-   engine makes neither, and both cases are covered in `tests/test_fast_engine.py`.
+   an empty organ (49 rows in MIMIC-CXR-JPG, one in PadChest). Neither assumption is safe;
+   the fast engine makes neither, and both cases are covered in `tests/test_fast_engine.py`.
+
+4. **`OriginalResolution` is not native for ChestX-Ray8.** All 112,120 of its rows are
+   1024×1024, i.e. it ships the square-padded grid under the "original" name, so
+   frame-relative measures for that dataset are on the padded frame whatever variant is
+   asked for. Every other dataset is genuinely native here: 6,486 distinct sizes in
+   VinDr-CXR, 6,978 in CheXpert, 16,656 in MIMIC-CXR-JPG, 33,383 in PadChest.
 
 ## Data
 
@@ -134,7 +141,7 @@ the only route from here. See `data/NOTES.md`.
 
 ## Results — every image of every dataset
 
-Nine passes, 1.2 M masks, 257 s of wall clock (four at a time). Readings are the
+Nine passes, 1.2 M masks, 260 s of wall clock (six at a time). Readings are the
 `quality_ok` rows; full tables in `output/FULL_DATASET.md` and
 `output/FULL_VARIANT_AGREEMENT.md`.
 
@@ -166,6 +173,22 @@ What the numbers say so far:
 - **Every dataset has a large-heart tail** — p95 between 0.57 and 0.62, up to 0.82 —
   against a clinical threshold of 0.5. Any shortcut analysis has to keep that
   physiological variation apart from what it is chasing.
+- **The share of "cardiomegaly by threshold" is wildly dataset-dependent**: CTR > 0.5 in
+  22.9% of PadChest, 29.7% of ChestX-Ray8, 33.0% of VinDr, 51.5% of CheXpert and 54.5% of
+  MIMIC. A 2.4× spread in a ratio that is supposed to be physiological is more plausibly
+  technique and case mix than epidemiology.
+- **The gap is not just magnification.** `heart_lung_area_ratio` is a ratio of two areas in
+  the same image, so global scale cancels in it, and it still separates the datasets by up
+  to 0.67 within-dataset standard deviations (CheXpert, MIMIC) — more than CTR does (0.42).
+- **CTR moves with lung expansion, in every dataset**: `r(CTR, lung_area_frac)` is −0.48
+  (CheXpert), −0.57 (ChestX-Ray8), −0.57 (PadChest), −0.58 (VinDr) and −0.61
+  (MIMIC-CXR-JPG). In other words the cardiothoracic ratio measured here is not only heart
+  size — a poorly inspired or differently positioned film raises it — while
+  `r(CTR, image size)` is only +0.06…+0.15, so detector size is not what drives it. This is
+  the first mechanism the knowledge graph should be able to name.
+
+`output/FULL_DIAGNOSTICS.md` has the distributions, effect sizes and correlations behind
+these statements; 49 MIMIC rows ship an empty organ and drop out of the ratios.
 
 Figures of the decoded masks, for both variants of each dataset, are in
 `output/figures/` (red = patient's right lung, green = patient's left lung, blue = heart).

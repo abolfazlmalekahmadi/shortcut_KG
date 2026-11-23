@@ -124,6 +124,11 @@
       "n_finite": 94927
     }
   },
+  "image_aspect": {
+    "min": 0.50978,
+    "median": 1.053036,
+    "max": 2.07234
+  },
   "lung_touches_border_n": 1051,
   "run": {
     "command": "python scripts/compute_anatomical_measures.py --dataset padchest --variant original --n 0 --tag padchest_original --out /home/pardis_ai/dev/abolfazl/re-sp-in/output/full/padchest_original.csv",
@@ -136,14 +141,14 @@
     "seed": null,
     "requested_n": null,
     "min_dice": null,
-    "rows_per_second": 1049.8,
+    "rows_per_second": 1015.9,
     "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
     "python": "3.10.12",
     "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
     "numpy": "2.2.6",
     "pandas": "2.3.3",
-    "git_commit": "8eba066baf82737d7d95d1114ff61e8b4a44ddba",
-    "elapsed_seconds": 91.6,
-    "utc_finished": "2026-11-23T08:36:38Z"
+    "git_commit": "83d12c72055f5ee544b61e84dc7ad05ac50d43c9",
+    "elapsed_seconds": 94.7,
+    "utc_finished": "2026-11-23T08:55:43Z"
   }
 }

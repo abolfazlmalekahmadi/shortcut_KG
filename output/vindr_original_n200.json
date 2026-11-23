@@ -125,28 +125,30 @@
     }
   },
   "image_aspect": {
-    "min": 0.6781,
-    "median": 0.8312,
-    "max": 1.2319
+    "min": 0.67811,
+    "median": 0.831242,
+    "max": 1.231911
   },
   "lung_touches_border_n": 0,
   "run": {
-    "command": "python scripts/compute_anatomical_measures.py --dataset vindr --variant original --n 200 --plot 4",
+    "command": "python scripts/compute_anatomical_measures.py --dataset vindr --variant original --n 200 --plot 4 --quiet",
     "dataset": "vindr",
     "variant": "original",
+    "engine": "fast",
     "source_file": "/home/pardis_ai/dev/abolfazl/re-sp-in/data/OriginalResolution/VinDr-CXR.csv",
     "source_bytes": 945202714,
     "sample": "first",
     "seed": null,
     "requested_n": 200,
     "min_dice": null,
+    "rows_per_second": 868.9,
     "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
     "python": "3.10.12",
     "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
     "numpy": "2.2.6",
     "pandas": "2.3.3",
-    "git_commit": null,
-    "elapsed_seconds": 71.4,
-    "utc_finished": "2026-11-23T07:41:32Z"
+    "git_commit": "83d12c72055f5ee544b61e84dc7ad05ac50d43c9",
+    "elapsed_seconds": 0.2,
+    "utc_finished": "2026-11-23T09:00:26Z"
   }
 }

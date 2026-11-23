@@ -125,28 +125,30 @@
     }
   },
   "image_aspect": {
-    "min": 0.9719,
-    "median": 1.219,
-    "max": 1.2201
+    "min": 0.971877,
+    "median": 1.218966,
+    "max": 1.220096
   },
   "lung_touches_border_n": 17,
   "run": {
-    "command": "python scripts/compute_anatomical_measures.py --dataset chexpert --variant original --n 200 --plot 4",
+    "command": "python scripts/compute_anatomical_measures.py --dataset chexpert --variant original --n 200 --plot 4 --quiet",
     "dataset": "chexpert",
     "variant": "original",
+    "engine": "fast",
     "source_file": "/home/pardis_ai/dev/abolfazl/re-sp-in/data/OriginalResolution/CheXpert.csv",
     "source_bytes": 9442247589,
     "sample": "first",
     "seed": null,
     "requested_n": 200,
     "min_dice": null,
+    "rows_per_second": 913.7,
     "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
     "python": "3.10.12",
     "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
     "numpy": "2.2.6",
     "pandas": "2.3.3",
-    "git_commit": null,
-    "elapsed_seconds": 68.5,
-    "utc_finished": "2026-11-23T07:41:29Z"
+    "git_commit": "83d12c72055f5ee544b61e84dc7ad05ac50d43c9",
+    "elapsed_seconds": 0.2,
+    "utc_finished": "2026-11-23T09:00:26Z"
   }
 }

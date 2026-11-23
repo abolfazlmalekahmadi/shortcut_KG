@@ -38,6 +38,7 @@ Same code, same images, two published rasters. `mean abs rel diff` is the mean o
 | frame-normalised (may shift with padding) | `lung_bbox_top_norm` | 18000 | 0.9898 | 1.21% | 31.83% | 0.1342 | 0.1353 |
 | frame-normalised (may shift with padding) | `lung_bbox_right_norm` | 18000 | 0.7876 | 58.41% | 289.19% | 0.1156 | 0.1649 |
 | frame-normalised (may shift with padding) | `lung_bbox_bottom_norm` | 18000 | 0.9973 | 1.02% | 18.50% | 0.2321 | 0.2324 |
+| frame-normalised (may shift with padding) | `image_aspect` | 18000 | — | 15.64% | 30.78% | 0.876 | 1 |
 | absolute px (must differ) | `heart_width_px` | 18000 | 0.7603 | 62.75% | 69.87% | 893.7 | 329.546 |
 | absolute px (must differ) | `thorax_width_px` | 18000 | 0.6387 | 62.79% | 69.92% | 1856.67 | 684.069 |
 | absolute px (must differ) | `heart_area_px` | 18000 | 0.6383 | 85.95% | 90.93% | 566905 | 76233.9 |

@@ -124,6 +124,11 @@
       "n_finite": 186791
     }
   },
+  "image_aspect": {
+    "min": 0.744643,
+    "median": 1.218966,
+    "max": 2.5
+  },
   "lung_touches_border_n": 8028,
   "run": {
     "command": "python scripts/compute_anatomical_measures.py --dataset chexpert --variant original --n 0 --tag chexpert_original --out /home/pardis_ai/dev/abolfazl/re-sp-in/output/full/chexpert_original.csv",
@@ -136,14 +141,14 @@
     "seed": null,
     "requested_n": null,
     "min_dice": null,
-    "rows_per_second": 996.5,
+    "rows_per_second": 973.5,
     "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
     "python": "3.10.12",
     "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
     "numpy": "2.2.6",
     "pandas": "2.3.3",
-    "git_commit": "8eba066baf82737d7d95d1114ff61e8b4a44ddba",
-    "elapsed_seconds": 188.5,
-    "utc_finished": "2026-11-23T08:37:55Z"
+    "git_commit": "83d12c72055f5ee544b61e84dc7ad05ac50d43c9",
+    "elapsed_seconds": 192.9,
+    "utc_finished": "2026-11-23T08:57:02Z"
   }
 }
