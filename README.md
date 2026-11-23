@@ -1,14 +1,16 @@
-# re-sp-in — anatomical measures from CheXmask (E1, first step)
+# shortcut_KG — anatomical measures from CheXmask (E1, first step)
 
 Shortcut learning in medical imaging with knowledge graphs · Ines Tmimi & Abolfazl
 Malekahmadi · supervision: Dr. Natalía Díaz-Rodríguez.
 
 This repository holds the first slice of **E1**: turn the CheXmask heart / left-lung /
 right-lung segmentation masks of an image into a small set of anatomical numbers
-(heart width, lung areas, cardiothoracic ratio, plus frame-relative position), for a
-small subset of each dataset. Those numbers are the anatomy half of the per-image
-knowledge graph; the metadata half (sex, age, scanner, view, devices) joins onto them
-later.
+(heart width, lung areas, cardiothoracic ratio, plus frame-relative position). Those
+numbers are the anatomy half of the per-image knowledge graph; the metadata half
+(sex, age, scanner, view, devices) joins onto them later.
+
+It has been run over **every image of all five datasets** — 657,463 masks at native
+resolution and 545,343 on the preprocessed grids — in about four minutes.
 
 Nothing here trains a model or touches images. It is the measurement step only.
 
@@ -42,56 +44,86 @@ All of them are documented in the module docstring of
 # 200 VinDr-CXR images at native resolution + a figure of the first 4
 python scripts/compute_anatomical_measures.py --dataset vindr --n 200 --plot 4
 
-# 1000 random CheXpert images from the 1024x1024 grids
+# the same subset from the fixed 1024x1024 grids
+python scripts/compute_anatomical_measures.py --dataset vindr \
+    --variant preprocessed --n 200 --plot 4
+
+# every row of a dataset (omit --n, or pass --n 0)
+python scripts/compute_anatomical_measures.py --dataset mimic --variant preprocessed
+
+# both variants, every dataset, then the two reports
+python scripts/run_full.py
+python scripts/summarise_runs.py --glob 'output/full/*.json' --out output/FULL_DATASET.md
+python scripts/variant_agreement.py --output-dir output/full --out output/FULL_VARIANT_AGREEMENT.md
+
+# 1000 random CheXpert images
 python scripts/compute_anatomical_measures.py --dataset chexpert \
     --variant preprocessed --n 1000 --sample random --seed 7
 
-# both variants, every dataset, then the two reports
-for ds in vindr chexpert mimic padchest chestxray8; do
-  python scripts/compute_anatomical_measures.py --dataset $ds --variant original --n 200 --plot 4
-done
-for ds in vindr chexpert mimic padchest; do
-  python scripts/compute_anatomical_measures.py --dataset $ds --variant preprocessed --n 200 --plot 4
-done
-python scripts/variant_agreement.py --out output/VARIANT_AGREEMENT.md
-python scripts/summarise_runs.py --out output/CROSS_DATASET.md
+# re-derive a few rows of a finished full run from the source, with the raster engine
+python scripts/verify_run.py --csv output/full/mimic_original.csv \
+    --dataset mimic --variant original --n 5
 
-# self-checks (RLE codec against the published reference, measures against a naive loop)
+# self-checks: the codec against the authors' decoder, the measures against a naive
+# loop, and the fast engine against the raster engine
 python tests/test_checks.py
+python tests/test_fast_engine.py
 ```
 
 Requirements: Python 3.10+, `numpy`, `pandas`, `matplotlib` (`pip install -r requirements.txt`).
 No `opencv` needed.
 
+## Two engines, one set of numbers
+
+| | `measures.measure_masks` (raster) | `measures_rle.measure_rle` (fast) |
+|---|---|---|
+| how | decodes the three masks to pixel arrays | works on the run lists directly |
+| speed | ~3 rows/s at native resolution | ~1,500 rows/s |
+| role | the readable reference for every definition | what the full-dataset runs use |
+
+They are interchangeable: `--engine fast|raster` selects one, the CLI writes the same 44
+columns either way, and `tests/test_fast_engine.py` compares every measure on 365 real
+images from all five datasets, on 44 images whose masks are not contiguous, and on
+synthetic rows with an empty organ.
+
 ## Layout
 
 ```
-scripts/compute_anatomical_measures.py   CLI: masks of a subset -> CSV + summary JSON
+scripts/compute_anatomical_measures.py   CLI: a subset or a whole dataset -> CSV + summary JSON
+scripts/run_full.py                      the nine full passes, several at a time
 scripts/compare_variants.py              two runs, side by side, per measure
 scripts/variant_agreement.py             the same check for every dataset, -> one report
 scripts/summarise_runs.py                every run in output/ -> one table
+scripts/verify_run.py                    re-derive rows of a finished run with the raster engine
 src/chexmask_anatomy/rle.py              RLE codec (row-major, 1-based, as the authors publish it)
-src/chexmask_anatomy/measures.py         the measures
+src/chexmask_anatomy/measures.py         the raster engine / the definitions
+src/chexmask_anatomy/measures_rle.py     the run-based engine
 src/chexmask_anatomy/io.py               dataset registry, streaming CSV reader
-tests/test_checks.py                     verification
+tests/test_checks.py                     codec and measures
+tests/test_fast_engine.py                fast engine against the raster engine
 data/                                    the CheXmask CSVs (see data/NOTES.md for provenance)
-output/                                  results; each run writes <tag>.csv + <tag>.json
+output/                                  the 200-row sample runs (CSV + JSON + figures)
+output/full/                             the full runs (JSON committed, CSV not)
 ```
 
-## Two caveats that cost time to discover
+## Three caveats that cost time to discover
 
 1. **`OriginalResolution` vs `Preprocessed`.** The release ships the same annotations
    twice: at native resolution, and padded-to-square then resized to 1024×1024. Anything
    that is a ratio of mask against mask (`ctr`, `heart_lung_area_ratio`, …) is identical
-   in both — per image, agreement is 0.12–0.14% across the four datasets that ship both,
-   and the rows are aligned image for image. Anything normalised by the *image frame*
-   (`*_area_frac`, `*_centroid_*_norm`, `image_aspect`) shifts by up to 99%, because
-   `Preprocessed` changed the frame. **Use `OriginalResolution` for positioning
-   questions**; either is fine for CTR. `output/VARIANT_AGREEMENT.md` is the evidence.
+   in both — per image, agreement is 0.12–0.14% over 545,343 paired images. Anything
+   normalised by the *image frame* (`*_area_frac`, `*_centroid_*_norm`, `image_aspect`)
+   shifts by up to 102%, because `Preprocessed` changed the frame: `lung_touches_border`
+   alone drops from 8,028 to 930 on CheXpert. **Use `OriginalResolution` for positioning
+   questions**; either is fine for CTR. `output/FULL_VARIANT_AGREEMENT.md` is the evidence.
 
 2. **Quality threshold.** `Dice RCA (Mean) ≥ 0.7` is the authors' recommendation. Rows
    below it are kept in the CSV but flagged with `quality_ok = false`, and the summary
    statistics are computed on the passing rows only.
+
+3. **A row of a mask is not always one contiguous stretch of pixels**, and some rows ship
+   an empty organ (at least one PadChest row does). Neither assumption is safe; the fast
+   engine makes neither, and both cases are covered in `tests/test_fast_engine.py`.
 
 ## Data
 
@@ -100,46 +132,51 @@ output/                                  results; each run writes <tag>.csv + <t
 against the release's `SHA256SUMS.txt`. PhysioNet blocks this region, so the mirror is
 the only route from here. See `data/NOTES.md`.
 
-## First results (first 200 rows of each dataset, both released rasters)
+## Results — every image of every dataset
 
-Same code, same images, two grids. Full tables: `output/CROSS_DATASET.md` and
-`output/VARIANT_AGREEMENT.md`; per-run CSVs and JSON summaries in `output/`.
+Nine passes, 1.2 M masks, 257 s of wall clock (four at a time). Readings are the
+`quality_ok` rows; full tables in `output/FULL_DATASET.md` and
+`output/FULL_VARIANT_AGREEMENT.md`.
 
-| dataset | n | ok | CTR `OriginalResolution` | CTR `Preprocessed` | CTR p05–p95 | heart width | lung area |
-|---|---:|---:|---|---|---|---|---|
-| MIMIC-CXR-JPG | 200 | 194 | 0.509 ± 0.059 | 0.510 ± 0.059 | 0.420–0.612 | 1,038 px | 23.7% |
-| CheXpert | 200 | 200 | 0.498 ± 0.054 | 0.498 ± 0.054 | 0.416–0.593 | 980 px | 25.4% |
-| VinDr-CXR | 200 | 199 | 0.487 ± 0.051 | 0.488 ± 0.051 | 0.402–0.577 | 906 px | 23.5% |
-| ChestX-Ray8 | 200 | 198 | 0.467 ± 0.058 | — (not shipped) | 0.380–0.573 | 349 px | 24.0% |
-| PadChest | 200 | 198 | 0.455 ± 0.061 | 0.455 ± 0.061 | 0.364–0.560 | 791 px | 26.1% |
+| dataset | images | quality-fail | CTR `OriginalResolution` | CTR `Preprocessed` | CTR p05–p95 | lung area | heart/lung area |
+|---|---:|---:|---|---|---|---|---:|
+| MIMIC-CXR-JPG | 243,334 | 2.4% | 0.509 ± 0.067 | 0.510 ± 0.067 | 0.403–0.620 | 23.8% | 0.455 |
+| CheXpert | 187,825 | 0.6% | 0.504 ± 0.059 | 0.504 ± 0.059 | 0.409–0.604 | 24.5% | 0.438 |
+| ChestX-Ray8 | 112,120 | 1.2% | 0.471 ± 0.061 | — (not shipped) | 0.382–0.579 | 24.5% | 0.381 |
+| PadChest | 96,184 | 1.3% | 0.460 ± 0.060 | 0.460 ± 0.060 | 0.373–0.570 | 25.9% | 0.365 |
+| VinDr-CXR | 18,000 | 0.5% | 0.481 ± 0.052 | 0.482 ± 0.052 | 0.403–0.573 | 24.0% | 0.360 |
+| **total** | **657,463** | **1.4%** | | | | | |
 
-Heart width and lung area are quoted for `OriginalResolution` only; the `Preprocessed`
-figures are pixel counts on a 1024×1024 grid and are not comparable to them.
+`lung area` and `heart/lung area` are quoted for `OriginalResolution` only; their
+`Preprocessed` values are other numbers on a 1024×1024 grid.
 
-Four things worth noticing already:
+What the numbers say so far:
 
-- **The two grids agree, exactly where it matters.** Per image, CTR differs between
-  `OriginalResolution` and `Preprocessed` by 0.12–0.14% (r ≥ 0.9999) on all four datasets
-  that ship both. See `output/VARIANT_AGREEMENT.md`.
-- **CTR separates the datasets** (0.455 to 0.509 — a 0.054 span between dataset means)
-  about as much as it separates images inside one dataset (sd ≈ 0.05). In other words,
-  knowing *which dataset* an image comes from is worth about as much as knowing anything
-  about the patient: a centre-level signal of exactly the kind the project wants to name
-  and measure.
-- **Every dataset has a tail of large hearts**: p95 is 0.56–0.61 against a clinical
-  threshold of 0.5. Any shortcut analysis has to keep that physiological variation
-  separate from whatever it is chasing.
-- **The rows are aligned across the two variants**, image for image and in the same
-  order, so the per-image comparison above needs no join. Ids are *not* unique per
-  patient though: the first three CheXpert rows are three studies of `patient40255`.
+- **The row count cross-checks against the release**: 657,463 masks counted, against the
+  657,566 the dataset README advertises — 0.02% apart, the mirror being v1.0.1.
+- **CTR ranks the datasets** — 0.460 (PadChest) to 0.510 (MIMIC). That 0.050 span is
+  about the size of the spread *inside* a dataset (sd 0.052–0.067). Knowing which dataset
+  an image comes from is therefore worth about as much as knowing anything about the
+  patient: a centre-level signal of the kind the project wants to name and measure.
+- **A 200-row sample can mislead.** On the first 200 CheXpert rows CTR read 0.498; on all
+  187,825 it reads 0.504, because the head of the file is a handful of patients — the
+  first three rows are three studies of `patient40255`. Sample before trusting a subset.
+- **Quality is unevenly distributed**: 0.5% of VinDr rows fail the Dice threshold and
+  2.4% of MIMIC rows do, so MIMIC's anatomical half will be the noisiest to join.
+- **Every dataset has a large-heart tail** — p95 between 0.57 and 0.62, up to 0.82 —
+  against a clinical threshold of 0.5. Any shortcut analysis has to keep that
+  physiological variation apart from what it is chasing.
 
 Figures of the decoded masks, for both variants of each dataset, are in
 `output/figures/` (red = patient's right lung, green = patient's left lung, blue = heart).
+The 200-row sample runs and their two reports (`output/CROSS_DATASET.md`,
+`output/VARIANT_AGREEMENT.md`) are kept beside them for quick iteration.
 
 ## Next
 
-- Extend from 200 rows to the full release (~657k masks across the five datasets).
 - Join the measures to acquisition metadata and demographics (E1 continues); the
   frame-relative columns are the ones to test for positioning shortcuts.
+- That join needs MIMIC-CXR DICOM and MIMIC-IV demographics, which require PhysioNet
+  credentialing (CITI course) — blocked from this IP, same as the masks were.
 - Add the landmark-derived measures (`Landmarks` is parsed already) if contours are
   wanted on top of areas.

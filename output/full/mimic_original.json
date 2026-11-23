@@ -1,0 +1,149 @@
+{
+  "n_rows": 243334,
+  "n_quality_ok": 237498,
+  "n_quality_fail": 5836,
+  "stats_quality_ok": {
+    "heart_width_px": {
+      "mean": 1028.505419,
+      "sd": 185.798107,
+      "median": 1041.0,
+      "p05": 689.0,
+      "p95": 1317.0,
+      "min": 0.0,
+      "max": 1844.0,
+      "n_finite": 237498
+    },
+    "heart_width_norm": {
+      "mean": 0.395725,
+      "sd": 0.054206,
+      "median": 0.393652,
+      "p05": 0.311189,
+      "p95": 0.487893,
+      "min": 0.0,
+      "max": 0.724747,
+      "n_finite": 237498
+    },
+    "thorax_width_px": {
+      "mean": 2025.227303,
+      "sd": 294.579389,
+      "median": 2052.0,
+      "p05": 1439.0,
+      "p95": 2457.0,
+      "min": 0.0,
+      "max": 2962.0,
+      "n_finite": 237498
+    },
+    "thorax_width_norm": {
+      "mean": 0.780382,
+      "sd": 0.075302,
+      "median": 0.779123,
+      "p05": 0.659591,
+      "p95": 0.906635,
+      "min": 0.0,
+      "max": 1.0,
+      "n_finite": 237498
+    },
+    "ctr": {
+      "mean": 0.509096,
+      "sd": 0.066627,
+      "median": 0.508098,
+      "p05": 0.402735,
+      "p95": 0.619827,
+      "min": 0.230212,
+      "max": 0.821308,
+      "n_finite": 237452
+    },
+    "ctr_same_level": {
+      "mean": 0.614126,
+      "sd": 1.024023,
+      "median": 0.524535,
+      "p05": 0.413867,
+      "p95": 0.669596,
+      "min": 0.24165,
+      "max": 366.333333,
+      "n_finite": 237447
+    },
+    "ctr_bbox": {
+      "mean": 0.522352,
+      "sd": 0.064156,
+      "median": 0.522197,
+      "p05": 0.418431,
+      "p95": 0.627803,
+      "min": 0.247733,
+      "max": 0.802728,
+      "n_finite": 237452
+    },
+    "heart_area_frac": {
+      "mean": 0.102358,
+      "sd": 0.021853,
+      "median": 0.09957,
+      "p05": 0.071658,
+      "p95": 0.14256,
+      "min": 0.0,
+      "max": 0.250323,
+      "n_finite": 237498
+    },
+    "left_lung_area_frac": {
+      "mean": 0.109049,
+      "sd": 0.027398,
+      "median": 0.10606,
+      "p05": 0.069466,
+      "p95": 0.158856,
+      "min": 0.0,
+      "max": 0.257216,
+      "n_finite": 237498
+    },
+    "right_lung_area_frac": {
+      "mean": 0.128621,
+      "sd": 0.032022,
+      "median": 0.125765,
+      "p05": 0.081256,
+      "p95": 0.18606,
+      "min": 0.0,
+      "max": 0.334135,
+      "n_finite": 237498
+    },
+    "lung_area_frac": {
+      "mean": 0.23767,
+      "sd": 0.056065,
+      "median": 0.23215,
+      "p05": 0.155597,
+      "p95": 0.338628,
+      "min": 0.0,
+      "max": 0.515735,
+      "n_finite": 237498
+    },
+    "heart_lung_area_ratio": {
+      "mean": 0.45499,
+      "sd": 0.145348,
+      "median": 0.431791,
+      "p05": 0.26139,
+      "p95": 0.727211,
+      "min": 0.112892,
+      "max": 1.365827,
+      "n_finite": 237452
+    }
+  },
+  "lung_touches_border_n": 10737,
+  "run": {
+    "command": "python scripts/compute_anatomical_measures.py --dataset mimic --variant original --n 0 --tag mimic_original --out /home/pardis_ai/dev/abolfazl/re-sp-in/output/full/mimic_original.csv",
+    "dataset": "mimic",
+    "variant": "original",
+    "engine": "fast",
+    "source_file": "/home/pardis_ai/dev/abolfazl/re-sp-in/data/OriginalResolution/MIMIC-CXR-JPG.csv",
+    "source_bytes": 12982555253,
+    "sample": "first",
+    "seed": null,
+    "requested_n": null,
+    "min_dice": null,
+    "rows_per_second": 947.9,
+    "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
+    "python": "3.10.12",
+    "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "git_commit": "8eba066baf82737d7d95d1114ff61e8b4a44ddba",
+    "elapsed_seconds": 256.7,
+    "utc_finished": "2026-11-23T08:39:03Z"
+  }
+}

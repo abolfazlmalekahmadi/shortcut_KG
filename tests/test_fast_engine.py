@@ -38,6 +38,8 @@ def _compare(measures_fast: dict, measures_ref: dict, where: str) -> None:
         got = measures_fast[key]
         if isinstance(ref, bool) or isinstance(ref, int):
             assert got == ref, f"{where}: {key}: {got!r} != {ref!r}"
+        elif isinstance(ref, float) and isinstance(got, float) and np.isnan(ref) and np.isnan(got):
+            continue
         else:
             assert np.isclose(got, ref, rtol=1e-9, atol=1e-12), (
                 f"{where}: {key}: {got!r} != {ref!r}"
@@ -138,6 +140,34 @@ def test_multi_interval_rows_are_handled_exactly() -> None:
             checked += 1
     print(f"  compared {checked} images that contain gapped rows")
     assert checked >= 3
+
+
+def test_empty_organ_is_handled() -> None:
+    """An empty mask must not break either engine, and they must still agree.
+
+    Not hypothetical: at least one PadChest row ships an empty organ (that is how the
+    first full-dataset run failed).
+    """
+    spec, header, records = _rows("padchest", "preprocessed")
+    organs = ("Heart", "Left Lung", "Right Lung")
+    checked = 0
+    for record in records[:8]:
+        row = dict(zip(header, record))
+        h, w = int(row["Height"]), int(row["Width"])
+        for blank in organs:
+            rles = {k: ("" if k == blank else row[k]) for k in organs}
+            ref = measure_masks(*[decode_rle(rles[k], h, w) > 0 for k in organs])
+            fast = measure_rle(rles["Heart"], rles["Left Lung"], rles["Right Lung"], h, w)
+            _compare(fast, ref, f"{spec.key}: blank {blank}")
+            checked += 1
+        for blank in (("Left Lung", "Right Lung"), organs):
+            rles = {k: ("" if k in blank else row[k]) for k in organs}
+            ref = measure_masks(*[decode_rle(rles[k], h, w) > 0 for k in organs])
+            fast = measure_rle(rles["Heart"], rles["Left Lung"], rles["Right Lung"], h, w)
+            _compare(fast, ref, f"{spec.key}: blank {blank}")
+            checked += 1
+    print(f"  compared {checked} synthetic empty-organ cases")
+    assert checked >= 40
 
 
 if __name__ == "__main__":

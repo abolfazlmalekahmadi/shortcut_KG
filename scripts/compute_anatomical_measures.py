@@ -35,6 +35,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import platform
 import subprocess
 import sys
@@ -279,7 +280,8 @@ def main(argv: list[str] | None = None) -> int:
 
     columns = FRONT_COLUMNS
     n_written = 0
-    with open(out_csv, "w", newline="") as fh:
+    partial = out_csv.with_suffix(out_csv.suffix + ".partial")
+    with open(partial, "w", newline="") as fh:
         writer = None
         for values in iter_measures(
             header, records, spec, args.variant, args.engine, args.min_dice, progress
@@ -292,6 +294,9 @@ def main(argv: list[str] | None = None) -> int:
             n_written += 1
         if writer is None:  # nothing survived the filters
             fh.write(",".join(columns) + "\n")
+    # Rename only once the file is complete, so a crash cannot leave a truncated table
+    # that later runs would mistake for a finished one.
+    os.replace(partial, out_csv)
     log(f"[2/4] wrote {out_csv}  ({n_written:,} rows x {len(columns)} cols)"
         f"  ({time.time() - t0:.0f}s)")
 

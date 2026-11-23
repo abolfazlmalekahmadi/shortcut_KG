@@ -136,14 +136,14 @@
     "seed": null,
     "requested_n": null,
     "min_dice": null,
-    "rows_per_second": 922.1,
+    "rows_per_second": 951.2,
     "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
     "python": "3.10.12",
     "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
     "numpy": "2.2.6",
     "pandas": "2.3.3",
-    "git_commit": null,
-    "elapsed_seconds": 19.5,
-    "utc_finished": "2026-11-23T08:30:30Z"
+    "git_commit": "8eba066baf82737d7d95d1114ff61e8b4a44ddba",
+    "elapsed_seconds": 18.9,
+    "utc_finished": "2026-11-23T08:35:06Z"
   }
 }

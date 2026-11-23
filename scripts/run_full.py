@@ -77,11 +77,14 @@ def main(argv=None) -> int:
     skipped = 0
     pending = []
     for dataset, variant, path in work:
-        exe = args.out_dir / f"{dataset}_{variant}.csv"
-        if exe.exists() and not args.force:
-            print(f"skip {exe.name} (exists; --force to redo)")
+        tag = f"{dataset}_{variant}"
+        # The JSON is written after the CSV, so it is the completion marker.
+        if (args.out_dir / f"{tag}.json").exists() and not args.force:
+            print(f"skip {tag} (done; --force to redo)")
             skipped += 1
             continue
+        for leftover in args.out_dir.glob(f"{tag}.csv*"):
+            leftover.unlink()
         pending.append((dataset, variant, path))
 
     running: list[tuple[subprocess.Popen, str, Path]] = []

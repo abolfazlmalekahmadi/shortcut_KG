@@ -207,36 +207,41 @@ def measure_rle(
     # Each lung is a single interval per row, so the union of one row is the pair of
     # those two intervals. Vectorised: align both organs on the union of their rows.
     u_rows = np.union1d(l_rows, r_rows)
+    u_fx = np.empty(u_rows.size, dtype=np.int64)
+    u_lx = np.empty(u_rows.size, dtype=np.int64)
+    overlap = 0
     if u_rows.size:
         li, has_l = _align(l_rows, u_rows)
         ri, has_r = _align(r_rows, u_rows)
+        only_l = has_l & ~has_r
+        only_r = has_r & ~has_l
         both = has_l & has_r
-        u_fx = np.where(both, np.minimum(l_fx[li], r_fx[ri]),
-                        np.where(has_l, l_fx[li], r_fx[ri]))
-        u_lx = np.where(both, np.maximum(l_lx[li], r_lx[ri]),
-                        np.where(has_l, l_lx[li], r_lx[ri]))
-        # The two intervals are an upper bound on the true overlap: a row of an organ can
-        # hold more than one interval (gaps), and then the bounding pair is wider than the
-        # pixels. When the bound is non-zero, redo those rows exactly. Rare enough to keep
-        # the loop (and ``tests/test_fast_engine.py`` checks the result anyway).
-        bound = np.zeros(u_rows.size, dtype=np.int64)
-        bound[both] = np.maximum(
-            0,
-            np.minimum(l_lx[li[both]], r_lx[ri[both]])
-            - np.maximum(l_fx[li[both]], r_fx[ri[both]])
-            + 1,
-        )
-        exact = np.nonzero(bound > 0)[0]
-        if exact.size == 0:
-            overlap = 0
-        else:
-            overlap = sum(
-                _exact_overlap_in_row(left, right, width, int(u_rows[k])) for k in exact
+        # Assign through masks so that an empty organ can never be indexed (a PadChest
+        # row does ship an empty mask). ``tests/test_fast_engine.py`` covers this.
+        if only_l.any():
+            u_fx[only_l] = l_fx[li[only_l]]
+            u_lx[only_l] = l_lx[li[only_l]]
+        if only_r.any():
+            u_fx[only_r] = r_fx[ri[only_r]]
+            u_lx[only_r] = r_lx[ri[only_r]]
+        if both.any():
+            bl, br = li[both], ri[both]
+            u_fx[both] = np.minimum(l_fx[bl], r_fx[br])
+            u_lx[both] = np.maximum(l_lx[bl], r_lx[br])
+            # The pair of bounding intervals is an upper bound on the true overlap: a row
+            # can hold more than one interval (gaps). Where the bound is non-zero, redo
+            # those rows exactly. Rare, so the loop is fine.
+            bound = np.maximum(
+                0, np.minimum(l_lx[bl], r_lx[br]) - np.maximum(l_fx[bl], r_fx[br]) + 1
             )
-    else:
-        u_fx = np.empty(0, dtype=np.int64)
-        u_lx = np.empty(0, dtype=np.int64)
-        overlap = 0
+            suspicious = np.nonzero(bound > 0)[0]
+            if suspicious.size == 0:
+                overlap = 0
+            else:
+                overlap = sum(
+                    _exact_overlap_in_row(left, right, width, int(u_rows[both][k]))
+                    for k in suspicious
+                )
     u_area = l_area + r_area - overlap
 
     out: dict = {}
