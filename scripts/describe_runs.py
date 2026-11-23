@@ -34,6 +34,7 @@ USECOLS = [
     "image_id", "height", "width", "image_aspect", "quality_ok",
     "heart_area_px", "left_lung_area_px", "right_lung_area_px", "lung_area_px",
     "ctr", "heart_lung_area_ratio", "lung_area_frac", "lung_touches_border",
+    "thorax_width_norm", "heart_width_norm",
     "dice_rca_mean",
 ]
 REFERENCE = "vindr"
@@ -102,27 +103,65 @@ def separation_table(frames: dict[str, pd.DataFrame]) -> str:
     return "\n".join(lines)
 
 
+def _partial_r(y: np.ndarray, x: np.ndarray, z: np.ndarray) -> float:
+    """Partial correlation of ``y`` and ``x`` controlling for ``z``."""
+    design = np.c_[np.ones(len(z)), z]
+    coef_y, *_ = np.linalg.lstsq(design, y, rcond=None)
+    coef_x, *_ = np.linalg.lstsq(design, x, rcond=None)
+    return float(np.corrcoef(y - design @ coef_y, x - design @ coef_x)[0, 1])
+
+
 def confounder_table(frames: dict[str, pd.DataFrame]) -> str:
     lines = [
-        "| dataset | r(CTR, width) | r(CTR, height) | r(CTR, aspect) | r(CTR, lung area) | lung touches border |",
-        "|---|---:|---:|---:|---:|---:|",
+        "| dataset | r(CTR, image width) | r(CTR, lung area) | r(thorax width, lung area) | r(heart width, lung area) | partial r(CTR, lung area \\| thorax width) | lung touches border |",
+        "|---|---:|---:|---:|---:|---:|---:|",
     ]
     for name, df in frames.items():
         q = df[df.quality_ok]
         ctr = q.ctr.astype(float)
 
-        def r(column: str) -> str:
-            x = q[column].astype(float)
-            keep = np.isfinite(ctr) & np.isfinite(x)
-            if keep.sum() < 3 or x[keep].nunique() < 2:
+        def rc(a: str, b: str) -> str:
+            x = q[a].astype(float)
+            y = q[b].astype(float)
+            keep = np.isfinite(x) & np.isfinite(y)
+            if keep.sum() < 3 or x[keep].nunique() < 2 or y[keep].nunique() < 2:
                 return "—"
-            return f"{np.corrcoef(ctr[keep], x[keep])[0, 1]:+.3f}"
+            return f"{np.corrcoef(x[keep], y[keep])[0, 1]:+.3f}"
 
+        keep = (
+            np.isfinite(ctr)
+            & np.isfinite(q.lung_area_frac.astype(float))
+            & np.isfinite(q.thorax_width_norm.astype(float))
+        )
+        partial = (
+            "—"
+            if keep.sum() < 3
+            else f"{_partial_r(ctr[keep].to_numpy(float), q.lung_area_frac.to_numpy(float)[keep], q.thorax_width_norm.to_numpy(float)[keep]):+.3f}"
+        )
         lines.append(
-            f"| {name} | {r('width')} | {r('height')} | {r('image_aspect')} "
-            f"| {r('lung_area_frac')} | {q.lung_touches_border.mean():.1%} |"
+            f"| {name} | {rc('ctr', 'width')} | {rc('ctr', 'lung_area_frac')} "
+            f"| {rc('thorax_width_norm', 'lung_area_frac')} "
+            f"| {rc('heart_width_norm', 'lung_area_frac')} "
+            f"| {partial} | {q.lung_touches_border.mean():.1%} |"
         )
     return "\n".join(lines)
+
+
+def read_note() -> str:
+    return (
+        "Read the first column as a warning: `r(CTR, image width)` is weak (+0.06 … +0.14),\n"
+        "so detector size is not what ranks the datasets — an anatomy-only difference is not\n"
+        "explained away as magnification.\n"
+        "\n"
+        "The last-but-one column is the substance. CTR and lung area are coupled (-0.48 …\n"
+        "-0.61), and part of that is arithmetic: the thorax width sits in the CTR denominator\n"
+        "and moves with lung area (+0.55 … +0.67). But it is not only arithmetic. Controlling\n"
+        "for thorax width leaves a partial correlation of -0.43 … -0.59, and the heart width\n"
+        "itself is nearly uncorrelated with lung area (-0.20 … +0.08). So the coupling runs\n"
+        "through how tall and expanded the lungs are, and how the film was framed, rather than\n"
+        "through the heart: inspiration, positioning or habitus. Which of those it is cannot\n"
+        "be read off these tables; acquisition metadata and demographics can."
+    )
 
 
 def main(argv=None) -> int:
@@ -161,9 +200,7 @@ def main(argv=None) -> int:
         "",
         confounder_table(frames),
         "",
-        "Read these correlations as a warning, not a mechanism: a strong `r(CTR, size)` would",
-        "say the dataset ranking partly reflects detector size or processing rather than the",
-        "population. Only acquisition metadata and demographics can settle it.",
+        read_note(),
         "",
     ]
     text = "\n".join(out) + "\n"

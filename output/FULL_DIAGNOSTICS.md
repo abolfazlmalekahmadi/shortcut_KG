@@ -31,15 +31,24 @@ positioning).
 
 ## Is the gap confounded with acquisition geometry?
 
-| dataset | r(CTR, width) | r(CTR, height) | r(CTR, aspect) | r(CTR, lung area) | lung touches border |
-|---|---:|---:|---:|---:|---:|
-| chestxray8 | — | — | — | -0.574 | 3.9% |
-| chexpert | +0.144 | +0.115 | +0.148 | -0.482 | 4.2% |
-| mimic | +0.080 | +0.066 | +0.016 | -0.606 | 4.1% |
-| padchest | +0.097 | +0.066 | +0.138 | -0.567 | 0.9% |
-| vindr | +0.058 | +0.017 | +0.084 | -0.579 | 0.2% |
+| dataset | r(CTR, image width) | r(CTR, lung area) | r(thorax width, lung area) | r(heart width, lung area) | partial r(CTR, lung area \| thorax width) | lung touches border |
+|---|---:|---:|---:|---:|---:|---:|
+| chestxray8 | — | -0.574 | +0.597 | -0.119 | -0.489 | 3.9% |
+| chexpert | +0.144 | -0.482 | +0.548 | -0.076 | -0.431 | 4.2% |
+| mimic | +0.080 | -0.606 | +0.547 | -0.195 | -0.546 | 4.1% |
+| padchest | +0.097 | -0.567 | +0.575 | -0.075 | -0.569 | 0.9% |
+| vindr | +0.058 | -0.579 | +0.669 | +0.077 | -0.593 | 0.2% |
 
-Read these correlations as a warning, not a mechanism: a strong `r(CTR, size)` would
-say the dataset ranking partly reflects detector size or processing rather than the
-population. Only acquisition metadata and demographics can settle it.
+Read the first column as a warning: `r(CTR, image width)` is weak (+0.06 … +0.14),
+so detector size is not what ranks the datasets — an anatomy-only difference is not
+explained away as magnification.
+
+The last-but-one column is the substance. CTR and lung area are coupled (-0.48 …
+-0.61), and part of that is arithmetic: the thorax width sits in the CTR denominator
+and moves with lung area (+0.55 … +0.67). But it is not only arithmetic. Controlling
+for thorax width leaves a partial correlation of -0.43 … -0.59, and the heart width
+itself is nearly uncorrelated with lung area (-0.20 … +0.08). So the coupling runs
+through how tall and expanded the lungs are, and how the film was framed, rather than
+through the heart: inspiration, positioning or habitus. Which of those it is cannot
+be read off these tables; acquisition metadata and demographics can.
 

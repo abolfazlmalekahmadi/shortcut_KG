@@ -185,10 +185,14 @@ What the numbers say so far:
   to 0.67 within-dataset standard deviations (CheXpert, MIMIC) — more than CTR does (0.42).
 - **CTR moves with lung expansion, in every dataset**: `r(CTR, lung_area_frac)` is −0.48
   (CheXpert), −0.57 (ChestX-Ray8), −0.57 (PadChest), −0.58 (VinDr) and −0.61
-  (MIMIC-CXR-JPG). In other words the cardiothoracic ratio measured here is not only heart
-  size — a poorly inspired or differently positioned film raises it — while
-  `r(CTR, image size)` is only +0.06…+0.15, so detector size is not what drives it. This is
-  the first mechanism the knowledge graph should be able to name.
+  (MIMIC-CXR-JPG). Part of that is arithmetic — the thorax width sits in the CTR
+  denominator and moves with lung area (+0.55…+0.67) — but not all of it: controlling for
+  thorax width leaves a partial correlation of −0.43…−0.59, and heart width itself is
+  nearly uncorrelated with lung area (−0.20…+0.08). So what CTR tracks is how tall and
+  expanded the lungs are, and how the film was framed — inspiration, positioning or
+  habitus — rather than the heart alone. Meanwhile `r(CTR, image size)` is only
+  +0.06…+0.14, so detector size is not the driver. This is the first mechanism the
+  knowledge graph should be able to name.
 
 - **Anatomy alone names the dataset, but mostly through the frame.** A logistic
   regression on the measures separates the four large datasets with AUC 0.77–0.96 — and
