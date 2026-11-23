@@ -1,0 +1,152 @@
+{
+  "n_rows": 200,
+  "n_quality_ok": 200,
+  "n_quality_fail": 0,
+  "stats_quality_ok": {
+    "heart_width_px": {
+      "mean": 366.51,
+      "sd": 41.127695,
+      "median": 364.5,
+      "p05": 299.95,
+      "p95": 442.0,
+      "min": 278.0,
+      "max": 473.0,
+      "n_finite": 200
+    },
+    "heart_width_norm": {
+      "mean": 0.35792,
+      "sd": 0.040164,
+      "median": 0.355957,
+      "p05": 0.29292,
+      "p95": 0.431641,
+      "min": 0.271484,
+      "max": 0.461914,
+      "n_finite": 200
+    },
+    "thorax_width_px": {
+      "mean": 737.225,
+      "sd": 59.31514,
+      "median": 732.0,
+      "p05": 652.85,
+      "p95": 834.55,
+      "min": 574.0,
+      "max": 947.0,
+      "n_finite": 200
+    },
+    "thorax_width_norm": {
+      "mean": 0.719946,
+      "sd": 0.057925,
+      "median": 0.714844,
+      "p05": 0.637549,
+      "p95": 0.81499,
+      "min": 0.560547,
+      "max": 0.924805,
+      "n_finite": 200
+    },
+    "ctr": {
+      "mean": 0.498471,
+      "sd": 0.053625,
+      "median": 0.500696,
+      "p05": 0.416752,
+      "p95": 0.593341,
+      "min": 0.385526,
+      "max": 0.662992,
+      "n_finite": 200
+    },
+    "ctr_same_level": {
+      "mean": 0.544836,
+      "sd": 0.301264,
+      "median": 0.511721,
+      "p05": 0.424438,
+      "p95": 0.613097,
+      "min": 0.399727,
+      "max": 3.557692,
+      "n_finite": 200
+    },
+    "ctr_bbox": {
+      "mean": 0.512624,
+      "sd": 0.050627,
+      "median": 0.512067,
+      "p05": 0.432546,
+      "p95": 0.593635,
+      "min": 0.385621,
+      "max": 0.650915,
+      "n_finite": 200
+    },
+    "heart_area_frac": {
+      "mean": 0.085249,
+      "sd": 0.015319,
+      "median": 0.083478,
+      "p05": 0.064079,
+      "p95": 0.112281,
+      "min": 0.051023,
+      "max": 0.141658,
+      "n_finite": 200
+    },
+    "left_lung_area_frac": {
+      "mean": 0.097334,
+      "sd": 0.02415,
+      "median": 0.092206,
+      "p05": 0.064386,
+      "p95": 0.141652,
+      "min": 0.051343,
+      "max": 0.169331,
+      "n_finite": 200
+    },
+    "right_lung_area_frac": {
+      "mean": 0.118399,
+      "sd": 0.025014,
+      "median": 0.115348,
+      "p05": 0.085245,
+      "p95": 0.160812,
+      "min": 0.071601,
+      "max": 0.201462,
+      "n_finite": 200
+    },
+    "lung_area_frac": {
+      "mean": 0.215733,
+      "sd": 0.045069,
+      "median": 0.208601,
+      "p05": 0.157982,
+      "p95": 0.295863,
+      "min": 0.128137,
+      "max": 0.358873,
+      "n_finite": 200
+    },
+    "heart_lung_area_ratio": {
+      "mean": 0.409771,
+      "sd": 0.103938,
+      "median": 0.394454,
+      "p05": 0.261193,
+      "p95": 0.593049,
+      "min": 0.221614,
+      "max": 0.746006,
+      "n_finite": 200
+    }
+  },
+  "image_aspect": {
+    "min": 1.0,
+    "median": 1.0,
+    "max": 1.0
+  },
+  "lung_touches_border_n": 3,
+  "run": {
+    "command": "python scripts/compute_anatomical_measures.py --dataset chexpert --variant preprocessed --n 200 --plot 4",
+    "dataset": "chexpert",
+    "variant": "preprocessed",
+    "source_file": "/home/pardis_ai/dev/abolfazl/re-sp-in/data/Preprocessed/CheXpert.csv",
+    "source_bytes": 3302635405,
+    "sample": "first",
+    "seed": null,
+    "requested_n": 200,
+    "min_dice": null,
+    "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
+    "python": "3.10.12",
+    "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "git_commit": null,
+    "elapsed_seconds": 11.6,
+    "utc_finished": "2026-11-23T07:40:32Z"
+  }
+}

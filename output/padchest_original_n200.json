@@ -1,0 +1,152 @@
+{
+  "n_rows": 200,
+  "n_quality_ok": 198,
+  "n_quality_fail": 2,
+  "stats_quality_ok": {
+    "heart_width_px": {
+      "mean": 790.994949,
+      "sd": 304.763477,
+      "median": 692.0,
+      "p05": 478.85,
+      "p95": 1539.1,
+      "min": 371.0,
+      "max": 1827.0,
+      "n_finite": 198
+    },
+    "heart_width_norm": {
+      "mean": 0.340294,
+      "sd": 0.053037,
+      "median": 0.3395,
+      "p05": 0.254081,
+      "p95": 0.427618,
+      "min": 0.183645,
+      "max": 0.467143,
+      "n_finite": 198
+    },
+    "thorax_width_px": {
+      "mean": 1726.919192,
+      "sd": 575.483018,
+      "median": 1536.5,
+      "p05": 1220.1,
+      "p95": 3097.95,
+      "min": 846.0,
+      "max": 3745.0,
+      "n_finite": 198
+    },
+    "thorax_width_norm": {
+      "mean": 0.749243,
+      "sd": 0.076691,
+      "median": 0.742329,
+      "p05": 0.621171,
+      "p95": 0.873599,
+      "min": 0.488318,
+      "max": 0.903096,
+      "n_finite": 198
+    },
+    "ctr": {
+      "mean": 0.454964,
+      "sd": 0.060858,
+      "median": 0.453256,
+      "p05": 0.364121,
+      "p95": 0.560493,
+      "min": 0.327179,
+      "max": 0.605118,
+      "n_finite": 198
+    },
+    "ctr_same_level": {
+      "mean": 0.485599,
+      "sd": 0.184148,
+      "median": 0.472431,
+      "p05": 0.371929,
+      "p95": 0.590129,
+      "min": 0.328635,
+      "max": 2.897436,
+      "n_finite": 198
+    },
+    "ctr_bbox": {
+      "mean": 0.469533,
+      "sd": 0.059648,
+      "median": 0.466413,
+      "p05": 0.374252,
+      "p95": 0.579045,
+      "min": 0.328276,
+      "max": 0.60873,
+      "n_finite": 198
+    },
+    "heart_area_frac": {
+      "mean": 0.089809,
+      "sd": 0.01808,
+      "median": 0.088346,
+      "p05": 0.065121,
+      "p95": 0.121319,
+      "min": 0.038306,
+      "max": 0.149275,
+      "n_finite": 198
+    },
+    "left_lung_area_frac": {
+      "mean": 0.120347,
+      "sd": 0.026502,
+      "median": 0.11812,
+      "p05": 0.080528,
+      "p95": 0.16887,
+      "min": 0.054138,
+      "max": 0.187629,
+      "n_finite": 198
+    },
+    "right_lung_area_frac": {
+      "mean": 0.140444,
+      "sd": 0.029837,
+      "median": 0.139134,
+      "p05": 0.093883,
+      "p95": 0.191043,
+      "min": 0.059379,
+      "max": 0.213425,
+      "n_finite": 198
+    },
+    "lung_area_frac": {
+      "mean": 0.260791,
+      "sd": 0.05423,
+      "median": 0.256924,
+      "p05": 0.171594,
+      "p95": 0.362238,
+      "min": 0.124546,
+      "max": 0.395858,
+      "n_finite": 198
+    },
+    "heart_lung_area_ratio": {
+      "mean": 0.358464,
+      "sd": 0.101719,
+      "median": 0.339095,
+      "p05": 0.2259,
+      "p95": 0.523287,
+      "min": 0.185403,
+      "max": 0.70509,
+      "n_finite": 198
+    }
+  },
+  "image_aspect": {
+    "min": 0.745,
+    "median": 1.0633,
+    "max": 1.2974
+  },
+  "lung_touches_border_n": 4,
+  "run": {
+    "command": "python scripts/compute_anatomical_measures.py --dataset padchest --variant original --n 200 --plot 4",
+    "dataset": "padchest",
+    "variant": "original",
+    "source_file": "/home/pardis_ai/dev/abolfazl/re-sp-in/data/OriginalResolution/Padchest.csv",
+    "source_bytes": 4602675095,
+    "sample": "first",
+    "seed": null,
+    "requested_n": 200,
+    "min_dice": null,
+    "cwd": "/home/pardis_ai/dev/abolfazl/re-sp-in",
+    "python": "3.10.12",
+    "platform": "Linux-5.15.0-119-generic-x86_64-with-glibc2.35",
+    "numpy": "2.2.6",
+    "pandas": "2.3.3",
+    "git_commit": null,
+    "elapsed_seconds": 54.8,
+    "utc_finished": "2026-11-23T07:41:15Z"
+  }
+}

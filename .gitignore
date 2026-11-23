@@ -1,0 +1,15 @@
+# The CheXmask CSVs are ~38 GB. Ignore the data itself, keep its metadata
+# (NOTES.md, DATA_DICTIONARY.md, LICENSE.txt, SHA256SUMS.txt).
+data/**/*.csv
+
+# Full-dataset measure tables are ~0.1-0.4 GB each. Their JSON summaries are kept,
+# and so are the 200-row sample runs in output/.
+output/full/*.csv
+output/full/logs/
+
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+.DS_Store
