@@ -14,6 +14,10 @@ resolution and 545,343 on the preprocessed grids — in about four minutes.
 
 Nothing here trains a model or touches images. It is the measurement step only.
 
+**The write-up of this stage is in [RESULTS.md](RESULTS.md)** — measures, verification,
+data quality, what the anatomy already says about which dataset an image came from, and
+what is still open.
+
 ## What the numbers mean
 
 Given the three masks of one image (size `H x W`):
@@ -144,6 +148,9 @@ the only route from here. See `data/NOTES.md`.
 
 ## Results — every image of every dataset
 
+Summary below; the full stage write-up, with methods, verification and open items, is in
+**[RESULTS.md](RESULTS.md)**.
+
 Nine passes, 1.2 M masks, 260 s of wall clock (six at a time). Readings are the
 `quality_ok` rows; full tables in `output/FULL_DATASET.md` and
 `output/FULL_VARIANT_AGREEMENT.md`.
@@ -202,7 +209,9 @@ What the numbers say so far:
   moderate CTR difference. `output/DATASET_LEAKAGE.md`.
 
 `output/FULL_DIAGNOSTICS.md` has the distributions, effect sizes and correlations behind
-these statements; 49 MIMIC rows ship an empty organ and drop out of the ratios.
+these statements. One data-quality trap worth repeating: 49 MIMIC-CXR-JPG rows annotate
+nothing at all, and **46 of them still pass Dice RCA ≥ 0.7** (0.65–0.89), so `quality_ok`
+alone is not a sufficient filter — require non-zero areas, or a finite `ctr`, as well.
 
 Figures of the decoded masks, for both variants of each dataset, are in
 `output/figures/` (red = patient's right lung, green = patient's left lung, blue = heart).
